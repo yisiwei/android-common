@@ -49,13 +49,18 @@ import cn.trinea.android.common.util.ShellUtils.CommandResult;
  */
 public class PackageUtils {
 
-    public static final String TAG                  = "PackageUtils";
+    public static final String TAG = "PackageUtils";
+
+    private PackageUtils() {
+        throw new AssertionError();
+    }
+
     /**
      * App installation location settings values, same to {@link #PackageHelper}
      */
-    public static final int    APP_INSTALL_AUTO     = 0;
-    public static final int    APP_INSTALL_INTERNAL = 1;
-    public static final int    APP_INSTALL_EXTERNAL = 2;
+    public static final int APP_INSTALL_AUTO     = 0;
+    public static final int APP_INSTALL_INTERNAL = 1;
+    public static final int APP_INSTALL_EXTERNAL = 2;
 
     /**
      * install according conditions
@@ -524,13 +529,14 @@ public class PackageUtils {
     public static void startInstalledAppDetails(Context context, String packageName) {
         Intent intent = new Intent();
         int sdkVersion = Build.VERSION.SDK_INT;
-        if (sdkVersion >= 9) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
             intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
             intent.setData(Uri.fromParts("package", packageName, null));
         } else {
             intent.setAction(Intent.ACTION_VIEW);
             intent.setClassName("com.android.settings", "com.android.settings.InstalledAppDetails");
-            intent.putExtra((sdkVersion == 8 ? "pkg" : "com.android.settings.ApplicationPkgName"), packageName);
+            intent.putExtra((sdkVersion == Build.VERSION_CODES.FROYO ? "pkg"
+                    : "com.android.settings.ApplicationPkgName"), packageName);
         }
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(intent);

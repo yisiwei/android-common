@@ -1,6 +1,8 @@
 package cn.trinea.android.common.util;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
 
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -39,6 +41,10 @@ import android.widget.TextView;
  * @author <a href="http://www.trinea.cn" target="_blank">Trinea</a> 2013-12-24
  */
 public class ViewUtils {
+
+    private ViewUtils() {
+        throw new AssertionError();
+    }
 
     /**
      * get ListView height according to every children
@@ -84,7 +90,7 @@ public class ViewUtils {
     // if (view == null || view.getChildCount() <= 0) {
     // return 0;
     // }
-    // if (Build.VERSION.SDK_INT >= 11) {
+    // if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
     // return getNumColumnsCompat11(view);
     //
     // } else {
@@ -227,5 +233,30 @@ public class ViewUtils {
                 child.setOnClickListener(listener);
             }
         }
+    }
+
+    /**
+     * get descended views from parent.
+     * 
+     * @param parent
+     * @param filter Type of views which will be returned.
+     * @param includeSubClass Whether returned list will include views which are subclass of filter or not.
+     * @return
+     */
+    public static <T extends View> List<T> getDescendants(ViewGroup parent, Class<T> filter, boolean includeSubClass) {
+        List<T> descendedViewList = new ArrayList<T>();
+        int childCount = parent.getChildCount();
+        for (int i = 0; i < childCount; i++) {
+            View child = parent.getChildAt(i);
+            Class<? extends View> childsClass = child.getClass();
+            if ((includeSubClass && filter.isAssignableFrom(childsClass))
+                    || (!includeSubClass && childsClass == filter)) {
+                descendedViewList.add(filter.cast(child));
+            }
+            if (child instanceof ViewGroup) {
+                descendedViewList.addAll(getDescendants((ViewGroup)child, filter, includeSubClass));
+            }
+        }
+        return descendedViewList;
     }
 }
